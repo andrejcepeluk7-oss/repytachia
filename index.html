@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>RPG Репутация</title>
+
+<style>
+  body {
+    font-family: "Comic Sans MS", cursive;
+    background: #1a1a1a;
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 10px;
+  }
+
+  select, input {
+    width: 220px;
+    height: 40px;
+
+    border: none;
+    border-radius: 12px;
+    background: #3a3a3a;
+    color: white;
+
+    font-size: 16px;
+    text-align: center;
+    margin: 6px;
+    outline: none;
+    font-family: "Comic Sans MS", cursive;
+  }
+
+  button {
+    width: 45px;
+    height: 40px;
+
+    border: none;
+    border-radius: 12px;
+    background: #3a3a3a;
+    color: white;
+
+    font-size: 18px;
+    cursor: pointer;
+    margin: 3px;
+  }
+
+  button:active {
+    transform: scale(0.95);
+  }
+
+  .rep {
+    font-size: 32px;
+    margin: 10px 0;
+  }
+
+  .desc {
+    margin-top: 15px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+
+    font-size: 16px;
+    line-height: 1.5;
+    text-align: left;
+    white-space: pre-line;
+    color: #ddd;
+  }
+
+  /* ===== КАРТИНКА ===== */
+  #preview {
+    width: 260px;
+    height: 260px;
+    object-fit: cover;
+    border-radius: 14px;
+    background: #333;
+    margin: 10px auto;
+    display: block;
+  }
+
+  #fileInput {
+    display: none;
+  }
+
+  /* ===== РЯДЫ ===== */
+  .row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* ===== УДАЛЕНИЕ ===== */
+  .trash {
+    background: #aa3333;
+    font-size: 16px;
+  }
+
+  /* ===== МОБИЛКА ===== */
+  @media (max-width: 600px) {
+    select, input {
+      width: 90vw;
+    }
+
+    #preview {
+      width: 90vw;
+      height: 90vw;
+    }
+  }
+
+</style>
+</head>
+
+<body>
+
+<!-- ===== КАРТИНКА ===== -->
+<img id="preview" src="">
+
+<input type="file" id="fileInput" accept="image/*">
+
+<!-- ===== ФРАКЦИИ ===== -->
+<div class="row">
+  <select id="factionSelect"></select>
+  <button onclick="document.getElementById('fileInput').click()">📷</button>
+  <button class="trash" onclick="deleteFaction()">🗑️</button>
+</div>
+
+<div class="row">
+  <input id="factionInput" placeholder="Новая фракция">
+  <button onclick="addFaction()">＋</button>
+</div>
+
+<!-- ===== ПЕРСОНАЖИ ===== -->
+<div class="row">
+  <select id="charSelect"></select>
+  <button class="trash" onclick="deleteChar()">🗑️</button>
+</div>
+
+<div class="row">
+  <input id="charInput" placeholder="Новый персонаж">
+  <button onclick="addChar()">＋</button>
+</div>
+
+<!-- ===== РЕПУТАЦИЯ ===== -->
+<div class="rep" id="repValue">0</div>
+
+<button onclick="change(-1)">-</button>
+<button onclick="change(1)">+</button>
+
+<div class="desc" id="desc"></div>
+
+<script>
+
+/* ===== МИР ===== */
+let world = {
+  factions: {
+    "НПС": {}
+  }
+};
+
+let currentFaction = "НПС";
+let currentChar = null;
+
+/* ===== ОПИСАНИЕ ===== */
+function getText(v) {
+  if (v <= -9) return "–10 / –9\nВраг.";
+  if (v <= -7) return "–8 / –7\nИзгой.";
+  if (v <= -5) return "–6 / –5\nПодозрение.";
+  if (v <= -3) return "–4 / –3\nПлохая слава.";
+  if (v <= -1) return "–2 / –1\nНеприязнь.";
+  if (v <= 1) return "0 / +1\nНейтрал.";
+  if (v <= 3) return "+2 / +3\nЗнакомый.";
+  if (v <= 5) return "+4 / +5\nУважение.";
+  if (v <= 7) return "+6 / +7\nСоюзник.";
+  if (v <= 9) return "+8 / +9\nГерой.";
+  return "+10\nЛегенда.";
+}
+
+/* ===== ЗАГРУЗКА ===== */
+function loadFactions() {
+  let sel = document.getElementById("factionSelect");
+  sel.innerHTML = "";
+
+  for (let f in world.factions) {
+    let opt = document.createElement("option");
+    opt.value = f;
+    opt.textContent = f;
+    sel.appendChild(opt);
+  }
+
+  sel.value = currentFaction;
+}
+
+function loadChars() {
+  let sel = document.getElementById("charSelect");
+  sel.innerHTML = "";
+
+  let list = world.factions[currentFaction];
+
+  for (let c in list) {
+    let opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    sel.appendChild(opt);
+  }
+
+  currentChar = Object.keys(list)[0] || null;
+  sel.value = currentChar;
+}
+/* ===== СОЗДАНИЕ ===== */
+function addFaction() {
+  let name = document.getElementById("factionInput").value.trim();
+  if (!name) return;
+
+  world.factions[name] = {};
+
+  currentFaction = name;
+  document.getElementById("factionInput").value = "";
+
+  loadFactions();
+  loadChars();
+  update();
+}
+
+function addChar() {
+  let name = document.getElementById("charInput").value.trim();
+  if (!name) return;
+
+  world.factions[currentFaction][name] = {
+    rep: 0,
+    img: ""
+  };
+
+  document.getElementById("charInput").value = "";
+
+  loadChars();
+  currentChar = name;
+  update();
+}
+
+/* ===== УДАЛЕНИЕ ФРАКЦИИ ===== */
+function deleteFaction() {
+  if (!currentFaction) return;
+
+  delete world.factions[currentFaction];
+
+  currentFaction = Object.keys(world.factions)[0] || null;
+
+  loadFactions();
+  loadChars();
+  update();
+}
+
+/* ===== УДАЛЕНИЕ ПЕРСОНАЖА ===== */
+function deleteChar() {
+  if (!currentChar) return;
+
+  delete world.factions[currentFaction][currentChar];
+
+  currentChar = Object.keys(world.factions[currentFaction])[0] || null;
+
+  loadChars();
+  update();
+}
+
+/* ===== СМЕНА ===== */
+document.getElementById("factionSelect").addEventListener("change", e => {
+  currentFaction = e.target.value;
+  loadChars();
+  update();
+});
+
+document.getElementById("charSelect").addEventListener("change", e => {
+  currentChar = e.target.value;
+  update();
+});
+
+/* ===== ОБНОВЛЕНИЕ ===== */
+function update() {
+  if (!currentChar) return;
+
+  let obj = world.factions[currentFaction][currentChar];
+
+  document.getElementById("repValue").textContent = obj.rep;
+  document.getElementById("desc").textContent = getText(obj.rep);
+
+  document.getElementById("preview").src = obj.img || "";
+}
+
+/* ===== РЕПУТАЦИЯ ===== */
+function change(v) {
+  let obj = world.factions[currentFaction][currentChar];
+
+  obj.rep += v;
+
+  if (obj.rep > 10) obj.rep = 10;
+  if (obj.rep < -10) obj.rep = -10;
+
+  update();
+}
+
+/* ===== ФОТО ===== */
+document.getElementById("fileInput").addEventListener("change", e => {
+  let file = e.target.files[0];
+  if (!file) return;
+
+  let reader = new FileReader();
+
+  reader.onload = function() {
+    let obj = world.factions[currentFaction][currentChar];
+    obj.img = reader.result;
+
+    update();
+  };
+
+  reader.readAsDataURL(file);
+});
+
+/* ===== СТАРТ ===== */
+loadFactions();
+loadChars();
+update();
+
+</script>
+
+</body>
+</html>
