@@ -28,7 +28,7 @@
     border-radius: 14px;
     background: #333;
     display: block;
-    margin: 10px auto 18px auto; /* ↑ отступ вниз */
+    margin: 10px auto 18px auto;
   }
 
   #fileInput {
@@ -42,7 +42,7 @@
     align-items: center;
     gap: 6px;
     margin-left: calc(50% - 130px);
-    margin-bottom: 10px; /* ← ОТСТУПЫ МЕЖДУ БЛОКАМИ */
+    margin-bottom: 10px;
   }
 
   /* ===== ПОЛЯ ===== */
@@ -75,8 +75,8 @@
   button.plus {
     width: 34px;
     height: 34px;
-    border: none;
     border-radius: 10px;
+    border: none;
     background: #3a3a3a;
     color: white;
     font-size: 18px;
@@ -86,8 +86,8 @@
   button.minus {
     width: 34px;
     height: 34px;
-    border: none;
     border-radius: 10px;
+    border: none;
     background: #3a3a3a;
     color: white;
     font-size: 18px;
@@ -98,13 +98,12 @@
     transform: scale(0.9);
   }
 
-  /* ===== РЕПУТАЦИЯ (ЦЕНТР) ===== */
+  /* ===== РЕПУТАЦИЯ ===== */
   .rep-box {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 12px;
-
     margin: 10px 0 5px 0;
   }
 
@@ -154,7 +153,6 @@
 <!-- ===== ФРАКЦИИ ===== -->
 <div class="row">
   <select id="factionSelect"></select>
-
   <button class="icon" onclick="deleteFaction()">🗑️</button>
   <button class="icon" onclick="document.getElementById('fileInput').click()">📷</button>
 </div>
@@ -175,7 +173,7 @@
   <button class="plus" onclick="addChar()">＋</button>
 </div>
 
-<!-- ===== РЕПУТАЦИЯ ЦЕНТР ===== -->
+<!-- ===== РЕПУТАЦИЯ ===== -->
 <div class="rep-box">
   <button class="minus" onclick="change(-1)">-</button>
   <div class="rep" id="repValue">0</div>
@@ -188,7 +186,7 @@
 
 <script>
 
-/* ===== DATA ===== */
+/* ===== ДАННЫЕ ===== */
 let world = JSON.parse(localStorage.getItem("world")) || {
   factions: { "НПС": {} }
 };
@@ -196,27 +194,42 @@ let world = JSON.parse(localStorage.getItem("world")) || {
 let currentFaction = localStorage.getItem("currentFaction") || "НПС";
 let currentChar = localStorage.getItem("currentChar") || null;
 
+/* ===== СОХРАНЕНИЕ ===== */
 function save() {
   localStorage.setItem("world", JSON.stringify(world));
   localStorage.setItem("currentFaction", currentFaction);
   localStorage.setItem("currentChar", currentChar);
 }
-/* ===== TEXT ===== */
+/* ===== НОВАЯ ШКАЛА РЕПУТАЦИИ ===== */
 function getText(v) {
-  if (v <= -9) return "–10 / –9\nВраг.";
-  if (v <= -7) return "–8 / –7\nИзгой.";
-  if (v <= -5) return "–6 / –5\nПодозрение.";
-  if (v <= -3) return "–4 / –3\nПлохая слава.";
-  if (v <= -1) return "–2 / –1\nНеприязнь.";
-  if (v <= 1) return "0 / +1\nНейтрал.";
-  if (v <= 3) return "+2 / +3\nЗнакомый.";
-  if (v <= 5) return "+4 / +5\nУважение.";
-  if (v <= 7) return "+6 / +7\nСоюзник.";
-  if (v <= 9) return "+8 / +9\nГерой.";
-  return "+10\nЛегенда.";
+  const map = {
+    "-10": "Враг народа: полное уничтожение доверия.",
+    "-9": "Заклятый враг: атаки без разговоров.",
+    "-8": "Опасный преступник: сообщают властям.",
+    "-7": "Известный нарушитель: избегают контакта.",
+    "-6": "Под наблюдением: за вами следят.",
+    "-5": "Нежелательный элемент: завышенные цены.",
+    "-4": "Плохая репутация: слухи распространяются.",
+    "-3": "Недоверие: скрывают информацию.",
+    "-2": "Холодное отношение: минимальный контакт.",
+    "-1": "Неприязнь: избегают общения.",
+    "0": "Нейтралитет: обычное отношение.",
+    "1": "Знакомый: вас узнают.",
+    "2": "Интерес: к вам присматриваются.",
+    "3": "Доверие: начинают слушать.",
+    "4": "Уважение: учитывают мнение.",
+    "5": "Надёжный человек: можно доверять.",
+    "6": "Сильный союзник: помогают без просьбы.",
+    "7": "Партнёр: вас учитывают в решениях.",
+    "8": "Герой региона: вас уважают.",
+    "9": "Легенда: ваше имя известно.",
+    "10": "Символ мира: влияние на общество."
+  };
+
+  return map[v] || "Неизвестно";
 }
 
-/* ===== LOAD ===== */
+/* ===== ЗАГРУЗКА ===== */
 function loadFactions() {
   let sel = document.getElementById("factionSelect");
   sel.innerHTML = "";
@@ -248,7 +261,7 @@ function loadChars() {
   sel.value = currentChar;
 }
 
-/* ===== CREATE ===== */
+/* ===== СОЗДАНИЕ ===== */
 function addFaction() {
   let name = document.getElementById("factionInput").value.trim();
   if (!name) return;
@@ -282,7 +295,7 @@ function addChar() {
   save();
 }
 
-/* ===== DELETE ===== */
+/* ===== УДАЛЕНИЕ ===== */
 function deleteFaction() {
   delete world.factions[currentFaction];
 
@@ -304,7 +317,7 @@ function deleteChar() {
   save();
 }
 
-/* ===== SWITCH ===== */
+/* ===== СМЕНА ===== */
 document.getElementById("factionSelect").onchange = e => {
   currentFaction = e.target.value;
   loadChars();
@@ -318,7 +331,7 @@ document.getElementById("charSelect").onchange = e => {
   save();
 };
 
-/* ===== UPDATE ===== */
+/* ===== ОБНОВЛЕНИЕ ===== */
 function update() {
   if (!currentChar) return;
 
@@ -330,7 +343,7 @@ function update() {
   document.getElementById("preview").src = obj.img || "";
 }
 
-/* ===== REP ===== */
+/* ===== РЕПУТАЦИЯ ===== */
 function change(v) {
   let obj = world.factions[currentFaction][currentChar];
 
@@ -343,7 +356,7 @@ function change(v) {
   save();
 }
 
-/* ===== IMAGE ===== */
+/* ===== ФОТО ===== */
 document.getElementById("fileInput").onchange = e => {
   let file = e.target.files[0];
   if (!file) return;
