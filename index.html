@@ -17,41 +17,49 @@
   }
 
   select, input {
-    width: 220px;
-    height: 40px;
+    width: 160px;
+    height: 34px;
 
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
     background: #3a3a3a;
     color: white;
 
-    font-size: 16px;
+    font-size: 14px;
     text-align: center;
-    margin: 6px;
+    margin: 4px;
     outline: none;
     font-family: "Comic Sans MS", cursive;
   }
 
   button {
-    width: 45px;
-    height: 40px;
+    width: 38px;
+    height: 34px;
 
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
     background: #3a3a3a;
     color: white;
 
-    font-size: 18px;
+    font-size: 16px;
     cursor: pointer;
-    margin: 3px;
+    margin: 2px;
   }
 
   button:active {
     transform: scale(0.95);
   }
 
+  .row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+
   .rep {
-    font-size: 32px;
+    font-size: 30px;
     margin: 10px 0;
   }
 
@@ -68,7 +76,6 @@
     color: #ddd;
   }
 
-  /* ===== КАРТИНКА ===== */
   #preview {
     width: 260px;
     height: 260px;
@@ -83,29 +90,27 @@
     display: none;
   }
 
-  /* ===== РЯДЫ ===== */
-  .row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  /* ===== УДАЛЕНИЕ ===== */
   .trash {
     background: #aa3333;
-    font-size: 16px;
   }
 
   /* ===== МОБИЛКА ===== */
   @media (max-width: 600px) {
+
     select, input {
-      width: 90vw;
+      width: 42vw;
+      font-size: 13px;
+    }
+
+    button {
+      width: 34px;
+      height: 34px;
+      font-size: 14px;
     }
 
     #preview {
-      width: 90vw;
-      height: 90vw;
+      width: 92vw;
+      height: 92vw;
     }
   }
 
@@ -114,9 +119,8 @@
 
 <body>
 
-<!-- ===== КАРТИНКА ===== -->
+<!-- ===== ФОТО ===== -->
 <img id="preview" src="">
-
 <input type="file" id="fileInput" accept="image/*">
 
 <!-- ===== ФРАКЦИИ ===== -->
@@ -127,7 +131,7 @@
 </div>
 
 <div class="row">
-  <input id="factionInput" placeholder="Новая фракция">
+  <input id="factionInput" placeholder="Фракция">
   <button onclick="addFaction()">＋</button>
 </div>
 
@@ -138,7 +142,7 @@
 </div>
 
 <div class="row">
-  <input id="charInput" placeholder="Новый персонаж">
+  <input id="charInput" placeholder="Персонаж">
   <button onclick="addChar()">＋</button>
 </div>
 
@@ -162,7 +166,7 @@ let world = {
 let currentFaction = "НПС";
 let currentChar = null;
 
-/* ===== ОПИСАНИЕ ===== */
+/* ===== ТЕКСТ ===== */
 function getText(v) {
   if (v <= -9) return "–10 / –9\nВраг.";
   if (v <= -7) return "–8 / –7\nИзгой.";
@@ -214,8 +218,8 @@ function addFaction() {
   if (!name) return;
 
   world.factions[name] = {};
-
   currentFaction = name;
+
   document.getElementById("factionInput").value = "";
 
   loadFactions();
@@ -239,7 +243,7 @@ function addChar() {
   update();
 }
 
-/* ===== УДАЛЕНИЕ ФРАКЦИИ ===== */
+/* ===== УДАЛЕНИЕ ===== */
 function deleteFaction() {
   if (!currentFaction) return;
 
@@ -252,7 +256,6 @@ function deleteFaction() {
   update();
 }
 
-/* ===== УДАЛЕНИЕ ПЕРСОНАЖА ===== */
 function deleteChar() {
   if (!currentChar) return;
 
