@@ -11,11 +11,41 @@
     font-family: "Comic Sans MS", cursive;
     background: #1a1a1a;
     color: white;
-    text-align: center;
     margin: 0;
     padding: 10px;
   }
 
+  .container {
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  /* ===== КАРТИНКА ===== */
+  #preview {
+    width: 260px;
+    height: 260px;
+    object-fit: cover;
+    border-radius: 14px;
+    background: #333;
+    display: block;
+    margin: 10px auto 18px auto; /* ↑ отступ вниз */
+  }
+
+  #fileInput {
+    display: none;
+  }
+
+  /* ===== РЯДЫ ===== */
+  .row {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 6px;
+    margin-left: calc(50% - 130px);
+    margin-bottom: 10px; /* ← ОТСТУПЫ МЕЖДУ БЛОКАМИ */
+  }
+
+  /* ===== ПОЛЯ ===== */
   select, input {
     width: 160px;
     height: 34px;
@@ -27,90 +57,87 @@
 
     font-size: 14px;
     text-align: center;
-    margin: 4px;
     outline: none;
     font-family: "Comic Sans MS", cursive;
   }
 
-  button {
-    width: 38px;
+  /* ===== КНОПКИ ===== */
+  button.icon {
+    width: 34px;
     height: 34px;
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+  }
 
+  button.plus {
+    width: 34px;
+    height: 34px;
     border: none;
     border-radius: 10px;
     background: #3a3a3a;
     color: white;
-
-    font-size: 16px;
+    font-size: 18px;
     cursor: pointer;
-    margin: 2px;
+  }
+
+  button.minus {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 10px;
+    background: #3a3a3a;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
   }
 
   button:active {
-    transform: scale(0.95);
+    transform: scale(0.9);
   }
 
-  .row {
+  /* ===== РЕПУТАЦИЯ (ЦЕНТР) ===== */
+  .rep-box {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-wrap: nowrap;
-    gap: 4px;
+    gap: 12px;
+
+    margin: 10px 0 5px 0;
   }
 
   .rep {
     font-size: 30px;
-    margin: 10px 0;
   }
 
+  /* ===== ОПИСАНИЕ ===== */
   .desc {
-    margin-top: 15px;
-    max-width: 700px;
-    margin-left: auto;
-    margin-right: auto;
-
-    font-size: 16px;
-    line-height: 1.5;
+    margin-top: 10px;
+    max-width: 260px;
     text-align: left;
     white-space: pre-line;
     color: #ddd;
-  }
 
-  #preview {
-    width: 260px;
-    height: 260px;
-    object-fit: cover;
-    border-radius: 14px;
-    background: #333;
-    margin: 10px auto;
-    display: block;
-  }
-
-  #fileInput {
-    display: none;
-  }
-
-  .trash {
-    background: #aa3333;
+    margin-left: calc(50% - 130px);
+    font-size: 15px;
+    line-height: 1.4;
   }
 
   /* ===== МОБИЛКА ===== */
   @media (max-width: 600px) {
+    #preview {
+      width: 90vw;
+      height: 90vw;
+    }
+
+    .row, .desc {
+      margin-left: 5vw;
+    }
 
     select, input {
-      width: 42vw;
-      font-size: 13px;
-    }
-
-    button {
-      width: 34px;
-      height: 34px;
-      font-size: 14px;
-    }
-
-    #preview {
-      width: 92vw;
-      height: 92vw;
+      width: 55vw;
     }
   }
 
@@ -119,54 +146,62 @@
 
 <body>
 
-<!-- ===== ФОТО ===== -->
+<div class="container">
+
 <img id="preview" src="">
 <input type="file" id="fileInput" accept="image/*">
 
 <!-- ===== ФРАКЦИИ ===== -->
 <div class="row">
   <select id="factionSelect"></select>
-  <button onclick="document.getElementById('fileInput').click()">📷</button>
-  <button class="trash" onclick="deleteFaction()">🗑️</button>
+
+  <button class="icon" onclick="deleteFaction()">🗑️</button>
+  <button class="icon" onclick="document.getElementById('fileInput').click()">📷</button>
 </div>
 
 <div class="row">
   <input id="factionInput" placeholder="Фракция">
-  <button onclick="addFaction()">＋</button>
+  <button class="plus" onclick="addFaction()">＋</button>
 </div>
 
 <!-- ===== ПЕРСОНАЖИ ===== -->
 <div class="row">
   <select id="charSelect"></select>
-  <button class="trash" onclick="deleteChar()">🗑️</button>
+  <button class="icon" onclick="deleteChar()">🗑️</button>
 </div>
 
 <div class="row">
   <input id="charInput" placeholder="Персонаж">
-  <button onclick="addChar()">＋</button>
+  <button class="plus" onclick="addChar()">＋</button>
 </div>
 
-<!-- ===== РЕПУТАЦИЯ ===== -->
-<div class="rep" id="repValue">0</div>
-
-<button onclick="change(-1)">-</button>
-<button onclick="change(1)">+</button>
+<!-- ===== РЕПУТАЦИЯ ЦЕНТР ===== -->
+<div class="rep-box">
+  <button class="minus" onclick="change(-1)">-</button>
+  <div class="rep" id="repValue">0</div>
+  <button class="plus" onclick="change(1)">+</button>
+</div>
 
 <div class="desc" id="desc"></div>
 
+</div>
+
 <script>
 
-/* ===== МИР ===== */
-let world = {
-  factions: {
-    "НПС": {}
-  }
+/* ===== DATA ===== */
+let world = JSON.parse(localStorage.getItem("world")) || {
+  factions: { "НПС": {} }
 };
 
-let currentFaction = "НПС";
-let currentChar = null;
+let currentFaction = localStorage.getItem("currentFaction") || "НПС";
+let currentChar = localStorage.getItem("currentChar") || null;
 
-/* ===== ТЕКСТ ===== */
+function save() {
+  localStorage.setItem("world", JSON.stringify(world));
+  localStorage.setItem("currentFaction", currentFaction);
+  localStorage.setItem("currentChar", currentChar);
+}
+/* ===== TEXT ===== */
 function getText(v) {
   if (v <= -9) return "–10 / –9\nВраг.";
   if (v <= -7) return "–8 / –7\nИзгой.";
@@ -181,7 +216,7 @@ function getText(v) {
   return "+10\nЛегенда.";
 }
 
-/* ===== ЗАГРУЗКА ===== */
+/* ===== LOAD ===== */
 function loadFactions() {
   let sel = document.getElementById("factionSelect");
   sel.innerHTML = "";
@@ -212,7 +247,8 @@ function loadChars() {
   currentChar = Object.keys(list)[0] || null;
   sel.value = currentChar;
 }
-/* ===== СОЗДАНИЕ ===== */
+
+/* ===== CREATE ===== */
 function addFaction() {
   let name = document.getElementById("factionInput").value.trim();
   if (!name) return;
@@ -225,6 +261,7 @@ function addFaction() {
   loadFactions();
   loadChars();
   update();
+  save();
 }
 
 function addChar() {
@@ -240,13 +277,13 @@ function addChar() {
 
   loadChars();
   currentChar = name;
+
   update();
+  save();
 }
 
-/* ===== УДАЛЕНИЕ ===== */
+/* ===== DELETE ===== */
 function deleteFaction() {
-  if (!currentFaction) return;
-
   delete world.factions[currentFaction];
 
   currentFaction = Object.keys(world.factions)[0] || null;
@@ -254,32 +291,34 @@ function deleteFaction() {
   loadFactions();
   loadChars();
   update();
+  save();
 }
 
 function deleteChar() {
-  if (!currentChar) return;
-
   delete world.factions[currentFaction][currentChar];
 
   currentChar = Object.keys(world.factions[currentFaction])[0] || null;
 
   loadChars();
   update();
+  save();
 }
 
-/* ===== СМЕНА ===== */
-document.getElementById("factionSelect").addEventListener("change", e => {
+/* ===== SWITCH ===== */
+document.getElementById("factionSelect").onchange = e => {
   currentFaction = e.target.value;
   loadChars();
   update();
-});
+  save();
+};
 
-document.getElementById("charSelect").addEventListener("change", e => {
+document.getElementById("charSelect").onchange = e => {
   currentChar = e.target.value;
   update();
-});
+  save();
+};
 
-/* ===== ОБНОВЛЕНИЕ ===== */
+/* ===== UPDATE ===== */
 function update() {
   if (!currentChar) return;
 
@@ -291,7 +330,7 @@ function update() {
   document.getElementById("preview").src = obj.img || "";
 }
 
-/* ===== РЕПУТАЦИЯ ===== */
+/* ===== REP ===== */
 function change(v) {
   let obj = world.factions[currentFaction][currentChar];
 
@@ -301,26 +340,26 @@ function change(v) {
   if (obj.rep < -10) obj.rep = -10;
 
   update();
+  save();
 }
 
-/* ===== ФОТО ===== */
-document.getElementById("fileInput").addEventListener("change", e => {
+/* ===== IMAGE ===== */
+document.getElementById("fileInput").onchange = e => {
   let file = e.target.files[0];
   if (!file) return;
 
   let reader = new FileReader();
 
-  reader.onload = function() {
-    let obj = world.factions[currentFaction][currentChar];
-    obj.img = reader.result;
-
+  reader.onload = () => {
+    world.factions[currentFaction][currentChar].img = reader.result;
     update();
+    save();
   };
 
   reader.readAsDataURL(file);
-});
+};
 
-/* ===== СТАРТ ===== */
+/* ===== START ===== */
 loadFactions();
 loadChars();
 update();
